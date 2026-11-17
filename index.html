@@ -7293,6 +7293,11 @@ function ensureMobCss() {
     '.page-header,.page-actions{flex-wrap:wrap!important;gap:6px!important;}',
     '.kv-row{flex-wrap:wrap!important;gap:4px!important;}',
     '.kv-label{min-width:unset!important;}',
+    /* Supplier modal: hide filter grid so OK button stays visible */
+    '#supplier-filters{display:none!important;}',
+    '#modal-select-supplier > div{max-height:92vh!important;max-width:98vw!important;}',
+    /* Sticky OK/Cancel footer inside any modal flex column */
+    '#modal-select-supplier > div > div:last-child{position:sticky!important;bottom:0!important;background:#fff!important;z-index:1!important;}',
   ].join('');
   document.head.appendChild(st);
 }
