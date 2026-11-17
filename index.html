@@ -391,8 +391,7 @@ textarea { resize: vertical; min-height: 80px; font-family: inherit; }
   /* ── 15. Sourcing event detail grid blocks ── */
   .sourcing-detail-grid { grid-template-columns: 1fr !important; }
 
-  /* ── 16. Wide inline flex rows → wrap ── */
-  [style*="display:flex"] { flex-wrap: wrap; }
+  /* ── 16. Wide inline flex rows → don't force-wrap (breaks header/tabs) ── */
 
   /* ── 17. Fixed-width inline overrides ── */
   [style*="width:860px"], [style*="width:700px"],
