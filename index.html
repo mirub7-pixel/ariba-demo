@@ -6881,6 +6881,7 @@ function openSupplierModal() {
   document.getElementById('supplier-selected-input').value = '';
   document.getElementById('modal-select-supplier').style.display = 'flex';
   renderSupplierRows(SUPPLIER_DATA);
+  if (typeof applyMobileStyles === 'function') setTimeout(applyMobileStyles, 60);
 }
 
 function renderSupplierRows(list) {
@@ -7350,6 +7351,29 @@ function fixInlineStyles() {
       }
     }
   });
+
+  /* ── Fix supplier-select modal: make inner scrollable, pin OK button ── */
+  var smInner = document.querySelector('#modal-select-supplier > div');
+  if (smInner) {
+    smInner.style.setProperty('max-height', 'calc(100vh - 24px)', 'important');
+    smInner.style.setProperty('max-width', '98vw', 'important');
+    smInner.style.setProperty('overflow-y', 'auto', 'important');
+    /* Limit table section so it doesn't eat all the space */
+    var tblWrap = smInner.querySelector('div[style*="overflow-y:auto"]');
+    if (tblWrap) {
+      tblWrap.style.setProperty('max-height', '160px', 'important');
+      tblWrap.style.setProperty('flex-shrink', '0', 'important');
+    }
+    /* Stick OK/Cancel to the bottom of the scroll container */
+    var okRow = smInner.lastElementChild;
+    if (okRow) {
+      okRow.style.setProperty('position', 'sticky', 'important');
+      okRow.style.setProperty('bottom', '0', 'important');
+      okRow.style.setProperty('background', '#fff', 'important');
+      okRow.style.setProperty('z-index', '2', 'important');
+      okRow.style.setProperty('border-top', '1px solid #E8E8E8', 'important');
+    }
+  }
 }
 
 /* ─── 3. Wrap tables in scroll containers ─── */
