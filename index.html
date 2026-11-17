@@ -294,6 +294,61 @@ textarea { resize: vertical; min-height: 80px; font-family: inherit; }
 
 /* SCROLLABLE SECTION */
 .scroll-x { overflow-x: auto; }
+
+/* ── MOBILE RESPONSIVE ── */
+@media (max-width: 768px) {
+  /* Hide left nav, make content full width */
+  .left-nav { display: none; }
+  .content-area { margin-left: 0; padding: 12px; }
+
+  /* Shell header: hide non-essential icons */
+  .shell-icon-btn:not(:last-of-type) { display: none; }
+
+  /* Demo guide: full width strip at bottom */
+  #demo-guide {
+    width: 100% !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    border-radius: 12px 12px 0 0;
+    max-height: 55vh;
+    overflow-y: auto;
+  }
+
+  /* Prevent dragging on mobile */
+  .dg-header { cursor: default; }
+
+  /* Tables: always horizontal scroll */
+  table { min-width: 600px; }
+  .table-wrap, [style*="overflow-x:auto"], [style*="overflow-x: auto"] { overflow-x: auto !important; }
+
+  /* Modals: full width */
+  .modal { width: 96vw !important; max-width: 96vw !important; }
+
+  /* Cards padding */
+  .card { padding: 12px !important; }
+
+  /* Page header stack vertically */
+  .page-header { flex-direction: column; gap: 8px; }
+  .page-actions { flex-wrap: wrap; }
+
+  /* Breadcrumb smaller */
+  .breadcrumb { font-size: 11px; }
+
+  /* Form rows stack vertically on small screens */
+  .kv-row { flex-direction: column; gap: 4px; }
+  .kv-label { min-width: unset; }
+
+  /* Hide scenario helper panel on mobile (too complex) */
+  #scenario-helper-panel { display: none !important; }
+}
+
+@media (max-width: 480px) {
+  .content-area { padding: 8px; }
+  .dg-step-title { font-size: 13px; }
+  .dg-instruction { font-size: 12px; }
+  #demo-guide { max-height: 60vh; }
+}
 </style>
 </head>
 <body>
