@@ -296,122 +296,13 @@ textarea { resize: vertical; min-height: 80px; font-family: inherit; }
 .scroll-x { overflow-x: auto; }
 
 /* ═══════════════════════════════
-   MOBILE RESPONSIVE  (≤ 768px)
+   MOBILE — JS handles most of it
    ═══════════════════════════════ */
-@media (max-width: 768px) {
-
-  /* ── 1. Left nav: slide-in drawer ── */
-  .left-nav {
-    transform: translateX(-100%);
-    transition: transform 0.25s ease;
-    z-index: 200;
-    box-shadow: 4px 0 24px rgba(0,0,0,0.18);
-    display: block !important;
-  }
-  .left-nav.mob-open { transform: translateX(0); }
-
-  /* ── 2. Overlay backdrop ── */
-  #mob-nav-overlay {
-    display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,0.4); z-index: 199;
-  }
-  #mob-nav-overlay.open { display: block; }
-
-  /* ── 3. Content area: full width, bottom padding for demo guide ── */
-  .content-area {
-    margin-left: 0 !important;
-    padding: 12px 12px 200px !important;
-  }
-
-  /* ── 4. Shell header ── */
-  #mob-hamburger { display: flex !important; }
-  .shell-breadcrumbs { display: none !important; }
-  .shell-header { padding: 0 10px; }
-
-  /* ── 5. Demo guide: bottom sheet ── */
-  #demo-guide {
-    width: 100% !important;
-    left: 0 !important; right: 0 !important;
-    bottom: 0 !important; top: auto !important;
-    border-radius: 16px 16px 0 0 !important;
-    max-height: 52vh;
-    overflow-y: auto;
-    transform: none !important;
-  }
-  .dg-header { cursor: default !important; }
-
-  /* ── 6. Override inline grid layouts → single column ── */
-  [style*="display:grid"], [style*="display: grid"] {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 12px !important;
-  }
-  [style*="grid-template-columns"] {
-    grid-template-columns: 1fr !important;
-  }
-
-  /* ── 7. Tables: horizontal scroll ── */
-  table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; white-space: nowrap; }
-  .table-wrap { overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
-
-  /* ── 8. Tab bars: horizontal scroll ── */
-  [style*="overflow-x:auto"] { -webkit-overflow-scrolling: touch; }
-
-  /* ── 9. Modals: near full screen ── */
-  .modal {
-    width: 96vw !important; max-width: 96vw !important;
-    max-height: 88vh !important; overflow-y: auto !important;
-  }
-  /* Modal overlay scroll */
-  .modal-overlay { align-items: flex-end !important; padding-bottom: 0 !important; }
-
-  /* ── 10. Cards / page chrome ── */
-  .card { padding: 12px !important; }
-  .page-header { flex-direction: column !important; align-items: flex-start !important; gap: 8px !important; }
-  .page-actions { flex-wrap: wrap !important; gap: 6px !important; }
-  .page-title { font-size: 16px !important; }
-
-  /* ── 11. kv-rows (detail forms) ── */
-  .kv-row { flex-direction: column !important; gap: 4px !important; }
-  .kv-label { min-width: unset !important; font-size: 11px !important; }
-  .kv-value { font-size: 13px !important; }
-
-  /* ── 12. Buttons: no fixed small sizes ── */
-  .page-actions button, .page-actions a {
-    font-size: 12px !important; padding: 6px 10px !important;
-  }
-
-  /* ── 13. Login ── */
-  #screen-login > div { width: 90vw !important; padding: 28px 20px !important; }
-
-  /* ── 14. Scenario panel (too complex for mobile) ── */
-  #scenario-helper-panel { display: none !important; }
-  #scenarios-left { width: 100% !important; }
-
-  /* ── 15. Sourcing event detail grid blocks ── */
-  .sourcing-detail-grid { grid-template-columns: 1fr !important; }
-
-  /* ── 16. Wide inline flex rows → don't force-wrap (breaks header/tabs) ── */
-
-  /* ── 17. Fixed-width inline overrides ── */
-  [style*="width:860px"], [style*="width:700px"],
-  [style*="width:580px"], [style*="width:500px"],
-  [style*="width:680px"] {
-    width: 92vw !important; max-width: 92vw !important;
-  }
-
-  /* ── 18. AI Summary / Overview content ── */
-  #review-tab-overview > div { flex-direction: column !important; }
+#mob-nav-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.45); z-index: 199;
 }
-
-/* ── Extra small (≤ 480px) ── */
-@media (max-width: 480px) {
-  .content-area { padding: 8px 8px 200px !important; }
-  .dg-step-title { font-size: 13px !important; }
-  .dg-instruction { font-size: 12px !important; }
-  #demo-guide { max-height: 58vh; }
-  .shell-logo-text { display: none; }
-}
+#mob-nav-overlay.open { display: block; }
 </style>
 </head>
 <body>
@@ -7348,73 +7239,118 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 
-/* ── Mobile nav drawer ── */
+/* ══════════════════════════════════════════
+   MOBILE LAYOUT ENGINE
+   Runs on load + every screen navigation
+   ══════════════════════════════════════════ */
+function isMobile() { return window.innerWidth <= 768; }
+
+function applyMobileStyles() {
+  if (!isMobile()) return;
+
+  var el, els, i;
+
+  /* 1. Inject a high-priority style tag once */
+  if (!document.getElementById('mob-injected-css')) {
+    var st = document.createElement('style');
+    st.id = 'mob-injected-css';
+    st.textContent = [
+      /* Shell */
+      '.left-nav{position:fixed!important;top:44px!important;left:0!important;transform:translateX(-100%);transition:transform .25s ease;z-index:200!important;display:block!important;}',
+      '.left-nav.mob-open{transform:translateX(0)!important;}',
+      '.content-area{margin-left:0!important;padding:10px 10px 190px 10px!important;width:100%!important;box-sizing:border-box!important;}',
+      '.shell-breadcrumbs{display:none!important;}',
+      '#mob-hamburger{display:flex!important;}',
+      /* Demo guide bottom sheet */
+      '#demo-guide{position:fixed!important;left:0!important;right:0!important;bottom:0!important;top:auto!important;width:100%!important;max-width:100%!important;border-radius:16px 16px 0 0!important;max-height:52vh!important;overflow-y:auto!important;transform:none!important;z-index:9998!important;}',
+      '.dg-header{cursor:default!important;}',
+      /* Tables */
+      'table{display:block!important;overflow-x:auto!important;-webkit-overflow-scrolling:touch!important;}',
+      /* Modals */
+      '.modal{width:95vw!important;max-width:95vw!important;max-height:86vh!important;overflow-y:auto!important;}',
+      /* Cards / forms */
+      '.card{padding:10px!important;}',
+      '.kv-row{flex-direction:column!important;gap:4px!important;}',
+      '.kv-label{min-width:unset!important;}',
+      '.page-header{flex-direction:column!important;gap:8px!important;}',
+      '.page-actions{flex-wrap:wrap!important;}',
+      /* Login */
+      '#screen-login > div{width:90vw!important;padding:24px 18px!important;}',
+      /* Scenario helper panel too wide */
+      '#scenario-helper-panel{display:none!important;}',
+      '#scenarios-left{width:100%!important;min-width:0!important;}',
+    ].join('');
+    document.head.appendChild(st);
+  }
+
+  /* 2. Fix all inline grid → flex column */
+  els = document.querySelectorAll('[style]');
+  for (i = 0; i < els.length; i++) {
+    el = els[i];
+    var cs = el.style;
+    /* Grid → column flex */
+    if (cs.display === 'grid' || cs.display === '-ms-grid') {
+      el.style.setProperty('display', 'flex', 'important');
+      el.style.setProperty('flex-direction', 'column', 'important');
+      el.style.removeProperty('grid-template-columns');
+      el.style.removeProperty('-ms-grid-columns');
+      if (!cs.gap) el.style.setProperty('gap', '10px', 'important');
+    }
+    /* Inline pixel widths wider than viewport */
+    if (cs.width && cs.width.indexOf('px') !== -1) {
+      var w = parseFloat(cs.width);
+      if (w > window.innerWidth - 20) {
+        el.style.setProperty('width', '100%', 'important');
+        el.style.setProperty('max-width', '100%', 'important');
+        el.style.setProperty('box-sizing', 'border-box', 'important');
+      }
+    }
+    /* Inline min-width that causes overflow */
+    if (cs.minWidth && cs.minWidth.indexOf('px') !== -1) {
+      var mw = parseFloat(cs.minWidth);
+      if (mw > window.innerWidth - 20) {
+        el.style.setProperty('min-width', '0', 'important');
+      }
+    }
+  }
+
+  /* 3. Wrap tables in scroll divs if not already */
+  els = document.querySelectorAll('table');
+  for (i = 0; i < els.length; i++) {
+    el = els[i];
+    var p = el.parentElement;
+    if (!p || p.classList.contains('mob-tbl-wrap')) continue;
+    var wrap = document.createElement('div');
+    wrap.className = 'mob-tbl-wrap';
+    wrap.style.cssText = 'overflow-x:auto;-webkit-overflow-scrolling:touch;width:100%;';
+    p.insertBefore(wrap, el);
+    wrap.appendChild(el);
+  }
+}
+
+/* ── Nav drawer ── */
 function toggleMobNav() {
-  var nav = document.querySelector('.left-nav');
-  var ov  = document.getElementById('mob-nav-overlay');
-  nav.classList.toggle('mob-open');
-  ov.classList.toggle('open');
+  document.querySelector('.left-nav').classList.toggle('mob-open');
+  document.getElementById('mob-nav-overlay').classList.toggle('open');
 }
 function closeMobNav() {
   document.querySelector('.left-nav').classList.remove('mob-open');
   document.getElementById('mob-nav-overlay').classList.remove('open');
 }
-
-/* ── Auto-close nav when a nav item is tapped on mobile ── */
 document.querySelectorAll('.nav-item').forEach(function(el) {
-  el.addEventListener('click', function() {
-    if (window.innerWidth <= 768) closeMobNav();
-  });
+  el.addEventListener('click', function() { if (isMobile()) closeMobNav(); });
 });
 
-/* ── Mobile layout init: wrap tables, reset inline grids ── */
-function initMobileLayout() {
-  if (window.innerWidth > 768) return;
-
-  /* Wrap bare tables in a scroll div if not already wrapped */
-  document.querySelectorAll('table').forEach(function(t) {
-    if (t.parentElement && t.parentElement.style.overflowX === 'auto') return;
-    if (t.parentElement && t.parentElement.classList.contains('table-scroll-wrap')) return;
-    var wrap = document.createElement('div');
-    wrap.className = 'table-scroll-wrap';
-    wrap.style.cssText = 'overflow-x:auto;-webkit-overflow-scrolling:touch;width:100%;';
-    t.parentNode.insertBefore(wrap, t);
-    wrap.appendChild(t);
-  });
-
-  /* Make inline flex rows wrap */
-  document.querySelectorAll('[style]').forEach(function(el) {
-    var s = el.getAttribute('style') || '';
-    /* Inline grid → column */
-    if (s.indexOf('display:grid') >= 0 || s.indexOf('display: grid') >= 0) {
-      el.style.display = 'flex';
-      el.style.flexDirection = 'column';
-      el.style.gap = '10px';
-    }
-    /* Inline fixed widths that overflow viewport */
-    var wMatch = s.match(/(?:^|;)\s*width\s*:\s*(\d+)px/);
-    if (wMatch && parseInt(wMatch[1]) > window.innerWidth - 24) {
-      el.style.width = '100%';
-      el.style.maxWidth = '100%';
-      el.style.boxSizing = 'border-box';
-    }
-  });
-}
-
-/* Run on load and after each screen navigation */
-window.addEventListener('load', initMobileLayout);
-window.addEventListener('resize', initMobileLayout);
-
-/* Patch goTo to re-apply mobile layout after navigation */
+/* ── Patch goTo to re-apply after each navigation ── */
 (function() {
-  var _origGoTo = window.goTo;
-  if (_origGoTo) {
-    window.goTo = function(id) {
-      _origGoTo(id);
-      setTimeout(initMobileLayout, 100);
-    };
-  }
+  var orig = window.goTo;
+  if (orig) window.goTo = function(id) { orig(id); setTimeout(applyMobileStyles, 80); };
 })();
+
+/* ── Run on load + resize ── */
+window.addEventListener('load', function() { setTimeout(applyMobileStyles, 50); });
+window.addEventListener('resize', applyMobileStyles);
+applyMobileStyles();
 </script>
 </body>
 </html>
