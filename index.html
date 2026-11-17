@@ -7288,6 +7288,8 @@ function ensureMobCss() {
     /* Scenario: hide helper panel, left section full-width */
     '#scenario-helper-panel{display:none!important;}',
     '#scenarios-left{width:100%!important;min-width:0!important;}',
+    /* Scenario panel as full-screen modal on mobile */
+    '#scenario-helper-panel.mob-scenario-open{display:block!important;position:fixed!important;inset:0!important;z-index:2500!important;width:100%!important;max-width:100%!important;border-left:none!important;overflow-y:auto!important;}',
     /* Wider buttons/inputs on mobile */
     'button,input,select,textarea{font-size:14px!important;}',
     /* Page headers / action rows wrap */
@@ -7449,6 +7451,42 @@ window.addEventListener('load', function() {
   setTimeout(applyMobileStyles, 60);
 });
 window.addEventListener('resize', applyMobileStyles);
+
+/* ── Mobile: Optimization Scenario → full-screen modal ── */
+(function patchScenarioForMobile() {
+  var origOpen  = window.openOptimizationScenario;
+  var origClose = window.closeScenarioPanel;
+
+  function mobShowPanel() {
+    var panel = document.getElementById('scenario-helper-panel');
+    if (!panel) return;
+    panel.classList.add('mob-scenario-open');
+    panel.scrollTop = 0;
+  }
+  function mobHidePanel() {
+    var panel = document.getElementById('scenario-helper-panel');
+    if (panel) panel.classList.remove('mob-scenario-open');
+  }
+
+  window.openOptimizationScenario = function() {
+    if (origOpen) origOpen();   // runs all setup logic
+    if (isMobile()) mobShowPanel();
+  };
+
+  window.closeScenarioPanel = function() {
+    if (isMobile()) mobHidePanel();
+    if (origClose) origClose(); // hides panel on desktop
+  };
+
+  /* Also close when Save button triggers saveOptimizationScenario */
+  var origSave = window.saveOptimizationScenario;
+  if (origSave) {
+    window.saveOptimizationScenario = function() {
+      if (isMobile()) mobHidePanel();
+      origSave();
+    };
+  }
+})();
 </script>
 </body>
 </html>
